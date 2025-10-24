@@ -1,0 +1,232 @@
+🧩 Usage Guide — RDT Kernel
+Recursive Diffusion-Type Kernel (RDT)
+
+Author: Steven Reid (RRG314)
+License: MIT
+
+📘 Introduction
+
+The RDT Kernel (rdt_kernel) provides a nonlinear, entropy-regulated diffusion operator for evolving scalar fields in PyTorch.
+
+It is designed to model field dynamics of the form:
+
+∂
+𝐿
+∂
+𝑡
+=
+−
+𝛼
+log
+⁡
+(
+𝐿
+)
++
+𝐷
+∇
+2
+𝐿
+∂t
+∂L
+	​
+
+=−αlog(L)+D∇
+2
+L
+
+This combines:
+
+A logarithmic potential (entropy regulation)
+
+A Laplacian diffusion term (spatial smoothing)
+
+The kernel is simple, differentiable, and stable across CPU, GPU, and TPU backends.
+
+⚙️ Installation
+
+Clone the repository or install from PyPI (when available):
+
+pip install rdt-kernel
+
+
+or from source:
+
+git clone https://github.com/yourusername/rdt-kernel.git
+cd rdt-kernel
+pip install -e .
+
+
+Then in Python:
+
+from rdt_kernel import step, rdt_kernel, get_device
+
+🧠 Core API
+get_device()
+
+Detects the best available compute backend automatically.
+
+device, name = get_device()
+print(name)
+
+Output	Meaning
+GPU	CUDA-enabled device available
+TPU	Torch XLA device detected
+CPU	Default fallback
+
+Returns:
+
+device: torch.device object
+
+name: string label (“CPU”, “GPU”, or “TPU”)
+
+rdt_kernel(L, alpha=0.5, D=0.1, dx=1.0)
+
+Computes the instantaneous field derivative according to the RDT equation.
+
+dLdt = rdt_kernel(L, alpha=0.5, D=0.1, dx=1.0)
+
+
+Parameters:
+
+Name	Type	Default	Description
+L	torch.Tensor	required	Scalar field (must be positive)
+alpha	float	0.5	Entropic coefficient (log potential strength)
+D	float	0.1	Diffusion coefficient
+dx	float	1.0	Spatial step size (grid resolution)
+
+Returns:
+torch.Tensor — field derivative ∂L/∂t of same shape as input.
+
+step(L, alpha=0.5, D=0.1, dx=1.0, dt=0.01)
+
+Performs one forward integration step of the RDT kernel.
+
+L_next = step(L, alpha=0.5, D=0.1, dx=1.0, dt=0.01)
+
+
+Parameters:
+
+Name	Type	Default	Description
+L	torch.Tensor	required	Input field (2D or 3D tensor)
+alpha	float	0.5	Log potential coefficient
+D	float	0.1	Diffusion coefficient
+dx	float	1.0	Spatial grid size
+dt	float	0.01	Time integration step
+
+Returns:
+torch.Tensor — Updated field (same shape as L)
+
+Internally clamps the output to min=1.001 to preserve numerical stability.
+
+🔬 Basic Example
+import torch
+from rdt_kernel import step, get_device
+
+# Detect device
+device, name = get_device()
+print("Running on", name)
+
+# Create initial field
+L = (1 + 0.1 * torch.rand((1, 256, 256))).to(device)
+
+# Run 100 diffusion steps
+for _ in range(100):
+    L = step(L, alpha=0.5, D=0.1, dx=1.0, dt=0.01)
+
+print("Mean field:", L.mean().item())
+
+📈 Visualizing Field Evolution
+import torch, matplotlib.pyplot as plt
+from rdt_kernel import step
+
+L = (1 + 0.1 * torch.rand((1, 128, 128)))
+frames = []
+for _ in range(200):
+    L = step(L)
+    frames.append(L[0].numpy())
+
+plt.imshow(frames[-1], cmap="plasma")
+plt.title("RDT Kernel Field Evolution")
+plt.colorbar()
+plt.show()
+
+🧩 Integration Examples
+1️⃣ Using inside Neural Networks
+import torch.nn as nn
+from rdt_kernel import step
+
+class RDTLayer(nn.Module):
+    def __init__(self, alpha=0.5, D=0.1, dx=1.0, dt=0.01):
+        super().__init__()
+        self.alpha, self.D, self.dx, self.dt = alpha, D, dx, dt
+
+    def forward(self, L):
+        return step(L, self.alpha, self.D, self.dx, self.dt)
+
+
+This can act as a physics-based regularization layer or as a latent-space evolution step in PDE-inspired neural networks.
+
+2️⃣ As a Custom ODE Function
+
+Integrate the RDT dynamics continuously using differentiable solvers like torchdiffeq:
+
+from torchdiffeq import odeint
+from rdt_kernel import rdt_kernel
+
+L0 = torch.ones((1, 128, 128))
+t = torch.linspace(0, 1, 100)
+sol = odeint(lambda t, L: rdt_kernel(L), L0, t)
+
+🧮 Parameter Guidelines
+Parameter	Range	Effect
+alpha	0.1–1.0	Controls entropy feedback (higher = stronger stabilization)
+D	0.01–1.0	Controls diffusion rate
+dx	0.5–2.0	Scales spatial derivatives (resolution dependent)
+dt	0.001–0.05	Controls temporal stability and integration accuracy
+
+Tip: For smooth, stable diffusion, keep dt * D / dx² < 0.5.
+
+⚡ Performance Tips
+
+✅ Use GPU for large 2D or 3D grids (PyTorch automatically parallelizes operations).
+
+✅ Batch multiple fields: you can run (B, H, W) tensors.
+
+⚙️ Mixed precision (torch.float16) works well for visualization tasks.
+
+🔬 Use CPU for small domains or symbolic analysis.
+
+⚡ Use TPU for high-throughput simulations via torch_xla.
+
+🔗 Works Well With
+Library	Purpose
+PyTorch Lightning	PDE or physics-informed model training
+torchdiffeq	Differentiable ODE integration
+Matplotlib	Visualizing field evolution
+NumPy	Analysis of entropy or diffusion statistics
+🧠 Example Research Use Cases
+
+Recursive field stability studies
+
+Entropy-constrained PDE solvers
+
+AI/ML systems using physics-based priors
+
+Diffusion-based generative models
+
+Field regularization in neural optimization
+
+🧩 Advanced Ideas
+
+Combine multiple RDT kernels with varying α and D to simulate multi-scale diffusion.
+
+Stack step() iterations within RNNs or autoencoders for temporal regularization.
+
+Use in information propagation networks to model entropy-driven dynamics.
+
+📜 License
+
+MIT License © 2025 Steven Reid (RRG314)
+
+“A minimal, stable operator for entropy-regulated diffusion — bridging physics, information, and AI.”
