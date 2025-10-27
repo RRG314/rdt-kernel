@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rdt_kernel"
+version = "1.0.0"
+description = "Recursive Diffusion-Type (RDT) Kernel — entropy-regulated nonlinear diffusion operator in PyTorch."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{ name = "Steven Reid (RRG314)" }]
+dependencies = ["torch"]
+
+[project.urls]
+Homepage = "https://github.com/rrg314/rdt-kernel"
+Issues   = "https://github.com/rrg314/rdt-kernel/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rdt_kernel"]
