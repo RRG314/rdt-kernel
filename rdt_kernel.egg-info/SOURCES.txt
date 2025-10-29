@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+rdt_kernel/__init__.py
+rdt_kernel/rdt.py
+rdt_kernel.egg-info/PKG-INFO
+rdt_kernel.egg-info/SOURCES.txt
+rdt_kernel.egg-info/dependency_links.txt
+rdt_kernel.egg-info/requires.txt
+rdt_kernel.egg-info/top_level.txt
+tests/test_core.py

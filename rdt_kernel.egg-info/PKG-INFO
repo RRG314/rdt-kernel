@@ -1,0 +1,70 @@
+Metadata-Version: 2.4
+Name: rdt-kernel
+Version: 1.0.6
+Summary: Physics-inspired nonlinear PDE kernel (recursive diffusion).
+Home-page: https://github.com/RRG314/rdt-kernel
+Author: Steven Reid
+Author-email: rdt-kernel <sreid1118@gmail.com>
+License: Apache-2.0
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch>=1.10
+Dynamic: license-file
+
+# RDT Kernel
+
+RDT Kernel is a physics-inspired numerical simulator implementing a nonlinear partial differential equation (PDE) for a scalar field L(x, y, t). It combines a logarithmic damping term with a Laplacian diffusion term, forming a compact PyTorch-based solver for recursive field dynamics, entropy stabilization, and nonlinear diffusion behavior.
+
+This implementation uses PyTorch tensor operations, automatically runs on CPU or GPU (and TPU if available), and can function as a standalone simulator or a physics-based component within other systems.
+
+## Mathematical Model
+
+The kernel evolves the field according to:
+∂L/∂t = -α·ln(L) + D·∇²L
+
+where:
+- L(x, y, t): scalar field
+- α: nonlinear damping coefficient
+- D: diffusion constant
+- ∇²L: discrete Laplacian
+
+The equation models a nonlinear parabolic PDE coupling the field’s magnitude to its potential energy, creating self-stabilizing diffusion and entropy-bounded evolution.
+
+## Core Functions
+
+- get_device(): Detects CPU, GPU, or TPU
+- rdt_kernel(): Computes ∂L/∂t
+- step(): Advances one Euler step with clamping
+- run_demo(): Runs a full test simulation with timing and mean-field output
+
+## Installation
+
+From PyPI:
+    pip install rdt-kernel
+
+From source:
+    git clone https://github.com/RRG314/rdt-kernel.git
+    cd rdt-kernel
+    pip install .
+
+## Example
+
+from rdt_kernel import run_demo
+run_demo(n=128, steps=100, alpha=0.5, D=0.1, dx=1.0, dt=0.01)
+
+Example output:
+Running 100 steps on GPU...
+Done in 0.029s, mean=1.003536
+
+## Applications
+
+- Nonlinear entropy and diffusion modeling  
+- Energy field evolution in dissipative media  
+- Recursive geometric and entropic systems  
+- Physics-inspired machine learning research
+
+## Author
+
+Developed by Steven Reid (Independent Researcher)
+Repository: https://github.com/RRG314/rdt-kernel

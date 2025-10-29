@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rdt-kernel"
+version = "1.0.6"
+description = "Physics-inspired nonlinear PDE kernel (recursive diffusion)."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "rdt-kernel", email = "sreid1118@gmail.com" }]
+requires-python = ">=3.8"
+dependencies = ["torch>=1.10"]
